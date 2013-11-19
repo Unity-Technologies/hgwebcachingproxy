@@ -252,7 +252,7 @@ class proxyserver(object):
             er = common.ErrorResponse(
                 common.HTTP_UNAUTHORIZED
                 if e.message == 'http authorization required'
-                else HTTP_BAD_REQUEST,
+                else common.HTTP_BAD_REQUEST,
                 'Authentication is required',
                 self.authheaders)
             req.respond(er, protocol.HGTYPE)
