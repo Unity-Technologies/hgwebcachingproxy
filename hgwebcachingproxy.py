@@ -260,13 +260,13 @@ class proxyserver(object):
             req.respond(inst.code, protocol.HGTYPE)
             return ['HTTP error']
         except util.Abort, e: # hg.peer will abort when it gets 401
-            if e.message not in ['http authorization required',
-                                 'authorization failed']:
+            if e.args not in [('http authorization required',),
+                              ('authorization failed',)]:
                 raise
-            self.ui.debug('server requires authentication\n')
+            self.ui.debug('server says: %s\n' % e.args[0])
             er = common.ErrorResponse(
                 common.HTTP_UNAUTHORIZED
-                if e.message == 'http authorization required'
+                if e.args == ('http authorization required',)
                 else common.HTTP_BAD_REQUEST,
                 'Authentication is required',
                 self.authheaders)
