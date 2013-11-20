@@ -225,10 +225,10 @@ class proxyserver(object):
                 existsremotely = store.exists(missingshas)
                 for sha, available in sorted(existsremotely.iteritems()):
                     if not available:
-                        self.ui.note('%s@%s - %s not available remotely\n' %
+                        self.ui.warn('%s@%s - %s not available remotely\n' %
                                      (u.user, path, sha))
                         continue
-                    self.ui.note('%s@%s - fetching %s\n' % (u.user, path, sha))
+                    self.ui.write('%s@%s - fetching %s\n' % (u.user, path, sha))
                     gotit = store._gethash(sha, sha)
                     if not gotit:
                         self.ui.warn(_('failed to get %s for %s@%s remotely\n'
