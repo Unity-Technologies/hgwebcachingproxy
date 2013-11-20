@@ -37,10 +37,12 @@ session will be served locally. Pushes will be forwarded straight to the main
 server, and, after pushing, the proxy will do a pull to make sure the mirror is
 up-to-date. Largefiles will be fetched and cached on demand.
 
-Only repos that already exist in the local cache will be served. The cache must
-thus manually be seeded with repositories that is to be served - either with a
-new or existing clone or an empty repo which will then be populated on first
-request.
+By default ``[hgwebcachingproxy] clone`` is ``True`` and repositories not yet
+present locally will be cloned automatically. Things will just work but it
+might take some time without any indication of progress to the client. If
+``clone`` is set to ``False``, the cache must manually be seeded with
+repositories that is to be served - either with a new or existing clone or an
+empty repo which will then be populated on first request.
 
 The proxy will by default assume that the server uses HTTP basic authentication
 (unless ``[hgwebcachingproxy] anonymous`` is true). If no credentials are
@@ -108,6 +110,7 @@ class proxyserver(object):
                              'Basic realm="%s"' %
                              self.ui.config('hgwebcachingproxy', 'realm',
                                             'Mercurial Proxy Authentication'))]
+        self.clone = self.ui.configbool('hgwebcachingproxy', 'clone', True)
 
     def __call__(self, env, respond):
         req = request.wsgirequest(env, respond)
@@ -157,12 +160,6 @@ class proxyserver(object):
         url = str(u)
 
         repopath = os.path.join(self.cachepath, path)
-        try:
-            repo = hg.repository(self.ui, path=repopath)
-        except error.RepoError, e:
-            self.ui.warn(_("error with path %r: %s\n") % (path, e))
-            req.respond(common.HTTP_NOT_FOUND, protocol.HGTYPE)
-            return ['repository %s not found in proxy' % path]
         path = path or '/'
 
         try:
@@ -174,6 +171,24 @@ class proxyserver(object):
                 peer = None
                 peercache[(u.user, u.passwd, path)] = (peer, ts)
             # peer is now None or valid
+
+            try:
+                repo = hg.repository(self.ui, path=repopath)
+            except error.RepoError, e:
+                if os.path.exists(repopath) or not self.clone:
+                    self.ui.warn(_("error with path %r: %s\n") % (path, e))
+                    req.respond(common.HTTP_NOT_FOUND, protocol.HGTYPE)
+                    return ['repository %s not found in proxy' % path]
+                self.ui.warn(_("%r not found - trying to clone %s\n")
+                             % (path, repopath))
+                try:
+                    peer, destpeer = hg.clone(self.ui, {}, url, repopath,
+                                              stream=True)
+                except Exception, e:
+                    self.ui.warn(_("error cloning %r: %s\n") % (path, e))
+                    req.respond(common.HTTP_NOT_FOUND, protocol.HGTYPE)
+                    return ['repository %s not available' % path]
+                repo = destpeer.local()
 
             if cmd == 'capabilities' and not peer:
                 # new session on expired repo - do auth and pull again
