@@ -179,8 +179,7 @@ class proxyserver(object):
                     self.ui.warn(_("error with path %r: %s\n") % (path, e))
                     req.respond(common.HTTP_NOT_FOUND, protocol.HGTYPE)
                     return ['repository %s not found in proxy' % path]
-                self.ui.warn(_("%r not found - trying to clone %s\n")
-                             % (path, repopath))
+                self.ui.warn(_("%r not found locally - cloning\n") % path)
                 try:
                     peer, destpeer = hg.clone(self.ui, {}, url, repopath,
                                               stream=True)
