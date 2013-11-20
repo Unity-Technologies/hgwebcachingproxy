@@ -263,7 +263,7 @@ class proxyserver(object):
             if e.args not in [('http authorization required',),
                               ('authorization failed',)]:
                 raise
-            self.ui.debug('server says: %s\n' % e.args[0])
+            self.ui.warn('%s@%s error: %r\n' % (u.user, path, e.args[0]))
             er = common.ErrorResponse(
                 common.HTTP_UNAUTHORIZED
                 if e.args == ('http authorization required',)
