@@ -86,8 +86,9 @@ commands.norepo += " proxy"
 peercache = dict()
 
 class proxyserver(object):
-    def __init__(self, ui, serverurl, cachepath, anonymous):
+    def __init__(self, ui, serverurl, cachepath, anonymous, unc=True):
         self.ui = ui or uimod.ui()
+        self.ui.setconfig('server', 'preferuncompressed', str(bool(unc))),
         self.serverurl = (serverurl or
                           self.ui.config('hgwebcachingproxy', 'serverurl'))
         self.cachepath = (cachepath or
@@ -322,5 +323,5 @@ def proxy(ui, serverurl, cachepath, **opts):
     service = commands.httpservice(ui, app, opts)
     cmdutil.service(opts, initfn=service.init, runfn=service.run)
 
-def wsgi(ui=None, serverurl=None, cachepath=None, anonymous=None):
-    return proxyserver(ui, serverurl, cachepath, anonymous)
+def wsgi(ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True):
+    return proxyserver(ui, serverurl, cachepath, anonymous, unc=unc)
