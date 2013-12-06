@@ -182,6 +182,9 @@ class proxyserver(object):
                     return ['repository %s not found in proxy' % path]
                 self.ui.warn(_("%r not found locally - cloning\n") % path)
                 try:
+                    repodir = os.path.dirname(repopath)
+                    if not os.path.exists(repodir):
+                        os.makedirs(repodir)
                     peer, destpeer = hg.clone(self.ui, {}, url, repopath,
                                               stream=True, update=False)
                 except Exception, e:
