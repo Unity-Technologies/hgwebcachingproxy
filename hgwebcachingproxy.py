@@ -176,6 +176,7 @@ class proxyserver(object):
             try:
                 repo = hg.repository(self.ui, path=repopath)
             except error.RepoError, e:
+                hg.peer(self.ui, {}, url) # authenticate / authorize first
                 if os.path.exists(repopath) or not self.clone:
                     self.ui.warn(_("error with path %r: %s\n") % (path, e))
                     req.respond(common.HTTP_NOT_FOUND, protocol.HGTYPE)
