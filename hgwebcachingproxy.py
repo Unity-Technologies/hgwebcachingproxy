@@ -199,7 +199,13 @@ class proxyserver(object):
                 self.ui.note(_('%s@%s - pulling\n') % (u.user, path))
                 t0 = time.time()
                 peer = hg.peer(self.ui, {}, url)
-                r = repo.pull(peer)
+                try:
+                    r = repo.pull(peer)
+                except error.RepoError, e:
+                    self.ui.debug('got %s on pull - running recover\n' % (e,))
+                    repo.recover()
+                    # should also run hg.verify(repo) ... but too expensive
+                    r = repo.pull(peer)
                 self.ui.debug('pull got %r after %s\n' % (r, time.time() - t0))
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
             elif ts is None: # never authenticated
