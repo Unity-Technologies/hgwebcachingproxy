@@ -78,7 +78,8 @@ from hgext.largefiles import lfutil, basestore
 
 cmdtable = {}
 command = cmdutil.command(cmdtable)
-testedwith = '2.8'
+testedwith = '2.8 3.2'
+buglink = 'https://bitbucket.org/Unity-Technologies/hgwebcachingproxy/'
 
 commands.norepo += " proxy"
 
