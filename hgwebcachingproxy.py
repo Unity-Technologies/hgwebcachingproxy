@@ -70,7 +70,7 @@ In an apache mod_wsgi configuration this proxy.wsgi can be used like::
 
 import os.path
 import urllib2, posixpath, time
-from mercurial import cmdutil, util, commands, hg, error
+from mercurial import cmdutil, util, commands, hg, error, exchange
 from mercurial import ui as uimod
 from mercurial.hgweb import protocol, common, request
 from mercurial.i18n import _
@@ -84,6 +84,13 @@ commands.norepo += " proxy"
 
 # username,passwd,path mapping to peer
 peercache = dict()
+
+def pull(repo, remote):
+    """41421bd9c42e dropped localrepo.pull"""
+    try:
+        return repo.pull(remote)
+    except AttributeError:
+        return exchange.pull(repo, remote).cgresult
 
 class proxyserver(object):
     def __init__(self, ui, serverurl, cachepath, anonymous, unc=True):
@@ -200,12 +207,12 @@ class proxyserver(object):
                 t0 = time.time()
                 peer = hg.peer(self.ui, {}, url)
                 try:
-                    r = repo.pull(peer)
+                    r = pull(repo, peer)
                 except error.RepoError, e:
                     self.ui.debug('got %s on pull - running recover\n' % (e,))
                     repo.recover()
                     # should also run hg.verify(repo) ... but too expensive
-                    r = repo.pull(peer)
+                    r = pull(repo, peer)
                 self.ui.debug('pull got %r after %s\n' % (r, time.time() - t0))
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
             elif ts is None: # never authenticated
@@ -257,7 +264,7 @@ class proxyserver(object):
                 r = peer._call(cmd, data=data, **args)
                 if cmd == 'unbundle':
                     self.ui.debug('fetching changes back\n')
-                    repo.pull(peer)
+                    pull(repo, peer)
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
                 req.respond(common.HTTP_OK, protocol.HGTYPE)
                 return [r]
