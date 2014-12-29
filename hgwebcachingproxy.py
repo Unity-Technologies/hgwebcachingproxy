@@ -255,16 +255,21 @@ class proxyserver(object):
 
             # Forward write commands to the remote server
             if cmd in ['putlfile', 'unbundle', 'pushkey']:
-                size = int(req.env.get('CONTENT_LENGTH', 0))
-                self.ui.debug('reading bundle with size %s\n' % size)
-                data = req.read(int(size))
+                size = req.env.get('CONTENT_LENGTH')
+                self.ui.debug('reading %s bytes content before forwarding\n'
+                              % size)
+                data = None
+                if req.env['REQUEST_METHOD'] == 'POST' or size is not None:
+                    data = req.read(int(size or 0))
 
                 if not peer:
                     peer = hg.peer(self.ui, {}, url)
                 self.ui.note(_('calling %s remotely\n') % cmd)
                 r = peer._call(cmd, data=data, **args)
                 if cmd == 'unbundle':
-                    self.ui.debug('fetching changes back\n')
+                    self.ui.debug('fetching pushed changes back\n')
+                    # we could perhaps just have pulled from data ... but it
+                    # could be tricky to make sure the repo stays in sync ...
                     pull(repo, peer)
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
                 req.respond(common.HTTP_OK, protocol.HGTYPE)
