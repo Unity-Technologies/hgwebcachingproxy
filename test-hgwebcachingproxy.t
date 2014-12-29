@@ -25,6 +25,7 @@ Test repo
   $ echo l > l
   $ hg add --large l
   $ hg ci -qm1
+  $ hg tag -l this-is-a-local-tag
   $ hg serve -p $HGPORT -d --pid-file=../hg1.pid -A $TESTTMP/server.log \
   >   --config web.push_ssl=False --config web.allow_push=*
   $ cd ..
@@ -244,6 +245,26 @@ Invalid URL
   $ showlog
   proxy:
    "GET /..?cmd=capabilities HTTP/1.1" 400 -
+  server:
+
+Lookups
+
+  $ hg id http://localhost:$HGPORT2/ -r this-is-a-local-tag
+  abort: unknown revision 'this-is-a-local-tag'!
+  [255]
+  $ hg pull http://localhost:$HGPORT2/ -r a2d
+  pulling from http://localhost:$HGPORT2/
+  no changes found
+  $ showlog
+  proxy:
+   "GET /?cmd=capabilities HTTP/1.1" 200 -
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=this-is-a-local-tag
+   "GET /?cmd=capabilities HTTP/1.1" 200 -
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
   server:
 
 check error log
