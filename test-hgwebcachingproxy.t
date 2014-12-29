@@ -109,6 +109,7 @@ Clone at revision
    "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=0000000000000000000000000000000000000000&heads=7a99bc7d64297385042c2683666eca3b4bcdbc8b
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=0
   $ cd clone
   $ cat >> .hg/hgrc <<EOF
   > [largefiles]
@@ -250,8 +251,7 @@ Invalid URL
 Lookups
 
   $ hg id http://localhost:$HGPORT2/ -r this-is-a-local-tag
-  abort: unknown revision 'this-is-a-local-tag'!
-  [255]
+  a2d542ae417a
   $ hg pull http://localhost:$HGPORT2/ -r a2d
   pulling from http://localhost:$HGPORT2/
   no changes found
@@ -259,6 +259,8 @@ Lookups
   proxy:
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=this-is-a-local-tag
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=namespaces
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
@@ -266,6 +268,9 @@ Lookups
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
   server:
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=this-is-a-local-tag
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
+   "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
 
 check error log
 
