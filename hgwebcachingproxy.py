@@ -183,7 +183,7 @@ class proxyserver(object):
 
             try:
                 repo = hg.repository(self.ui, path=repopath)
-            except error.RepoError, e:
+            except error.RepoError as e:
                 hg.peer(self.ui, {}, url) # authenticate / authorize first
                 if os.path.exists(repopath) or not self.clone:
                     self.ui.warn(_("error with path %r: %s\n") % (path, e))
@@ -196,7 +196,7 @@ class proxyserver(object):
                         os.makedirs(repodir)
                     peer, destpeer = hg.clone(self.ui, {}, url, repopath,
                                               stream=True, update=False)
-                except Exception, e:
+                except Exception as e:
                     self.ui.warn(_("error cloning %r: %s\n") % (path, e))
                     req.respond(common.HTTP_NOT_FOUND, protocol.HGTYPE)
                     return ['repository %s not available' % path]
@@ -209,7 +209,7 @@ class proxyserver(object):
                 peer = hg.peer(self.ui, {}, url)
                 try:
                     r = pull(repo, peer)
-                except error.RepoError, e:
+                except error.RepoError as e:
                     self.ui.debug('got %s on pull - running recover\n' % (e,))
                     repo.recover()
                     # should also run hg.verify(repo) ... but too expensive
@@ -278,11 +278,11 @@ class proxyserver(object):
             # Now serve it locally
             return protocol.call(repo, req, cmd)
 
-        except urllib2.HTTPError, inst:
+        except urllib2.HTTPError as inst:
             self.ui.warn(_('HTTPError connecting to server: %s\n') % inst)
             req.respond(inst.code, protocol.HGTYPE)
             return ['HTTP error']
-        except error.Abort, e: # hg.peer will abort when it gets 401
+        except error.Abort as e: # hg.peer will abort when it gets 401
             if e.args not in [('http authorization required',),
                               ('authorization failed',)]:
                 raise
