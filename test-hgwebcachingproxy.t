@@ -76,17 +76,16 @@ Clone via stream
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=branchmap HTTP/1.1" 200 -
    "GET /?cmd=stream_out HTTP/1.1" 200 -
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3Da2d542ae417acd2cb7089ef7d6ea66d09d8f74e9
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=0&common=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=statlfile+sha%3Dcde25b5e10ad99822ac2c62b8e01b4d8af3e01d5
    "GET /?cmd=getlfile HTTP/1.1" 200 - x-hgarg-1:sha=cde25b5e10ad99822ac2c62b8e01b4d8af3e01d5
   server:
    "GET /?cmd=capabilities HTTP/1.1" 200 -
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3D
-   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=0000000000000000000000000000000000000000&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=0000000000000000000000000000000000000000&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=statlfile+sha%3Dcde25b5e10ad99822ac2c62b8e01b4d8af3e01d5
    "GET /?cmd=getlfile HTTP/1.1" 200 - x-hgarg-1:sha=cde25b5e10ad99822ac2c62b8e01b4d8af3e01d5
@@ -104,9 +103,8 @@ Clone at revision
   proxy:
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=0
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3D
-   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=0000000000000000000000000000000000000000&heads=7a99bc7d64297385042c2683666eca3b4bcdbc8b
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=0000000000000000000000000000000000000000&heads=7a99bc7d64297385042c2683666eca3b4bcdbc8b&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=0
@@ -129,9 +127,8 @@ Pull all
   $ showlog
   proxy:
    "GET /?cmd=capabilities HTTP/1.1" 200 -
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3D7a99bc7d64297385042c2683666eca3b4bcdbc8b
-   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=7a99bc7d64297385042c2683666eca3b4bcdbc8b&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=7a99bc7d64297385042c2683666eca3b4bcdbc8b&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
 
@@ -168,13 +165,12 @@ Push back
    "GET /?cmd=branchmap HTTP/1.1" 200 -
    "GET /?cmd=branchmap HTTP/1.1" 200 -
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
-   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=686173686564+c4d7a87b500fd624ce5956dc80a084b3fb0c5f4f
+   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
-   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=686173686564+c4d7a87b500fd624ce5956dc80a084b3fb0c5f4f
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3Da2d542ae417acd2cb7089ef7d6ea66d09d8f74e9
-   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&heads=524af1007f13d00d669f97853b771c2799d00964
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&heads=524af1007f13d00d669f97853b771c2799d00964&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   $ hg push
   pushing to http://localhost:$HGPORT2/
@@ -209,15 +205,14 @@ Push largefile back
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=statlfile+sha%3D8ffbefa25ca257d3f5221c6b3a5dc6a9e8fe9f68
    "POST /?cmd=putlfile HTTP/1.1" 200 - x-hgarg-1:sha=8ffbefa25ca257d3f5221c6b3a5dc6a9e8fe9f68
-   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=686173686564+347b0146adf30138db9a9136a8f854d3c3b1629d
+   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=statlfile+sha%3D8ffbefa25ca257d3f5221c6b3a5dc6a9e8fe9f68
    "POST /?cmd=putlfile HTTP/1.1" 200 - x-hgarg-1:sha=8ffbefa25ca257d3f5221c6b3a5dc6a9e8fe9f68
-   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=686173686564+347b0146adf30138db9a9136a8f854d3c3b1629d
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3D524af1007f13d00d669f97853b771c2799d00964
-   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=524af1007f13d00d669f97853b771c2799d00964&heads=b41fb2726e9e347f87905e11a4eb1a038a884c45
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=524af1007f13d00d669f97853b771c2799d00964&heads=b41fb2726e9e347f87905e11a4eb1a038a884c45&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
 
 Invalid URL
@@ -262,7 +257,7 @@ Lookups
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=0&common=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&listkeys=phase%2Cbookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
   server:
