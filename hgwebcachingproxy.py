@@ -70,7 +70,7 @@ In an apache mod_wsgi configuration this proxy.wsgi can be used like::
 
 import os.path
 import urllib2, posixpath, time
-from mercurial import cmdutil, util, commands, hg, error, exchange
+from mercurial import cmdutil, util, hg, error, exchange
 from mercurial import ui as uimod
 from mercurial.hgweb import protocol, common, request
 from mercurial.i18n import _
@@ -85,8 +85,6 @@ cmdtable = {}
 command = cmdutil.command(cmdtable)
 testedwith = '2.8 3.2'
 buglink = 'https://bitbucket.org/Unity-Technologies/hgwebcachingproxy/'
-
-commands.norepo += " proxy"
 
 # username,passwd,path mapping to peer
 peercache = dict()
@@ -318,7 +316,8 @@ class proxyserver(object):
     ('6', 'ipv6', None, _('use IPv6 in addition to IPv4')),
     ('', 'certificate', '', _('SSL certificate file'), _('FILE')),
     ('', 'anonymous', None, _("authentication is not mandatory"))],
-    _('[OPTIONS]... SERVERURL CACHEPATH'))
+    _('[OPTIONS]... SERVERURL CACHEPATH'),
+    norepo=True)
 def proxy(ui, serverurl, cachepath, **opts):
     """start stand-alone caching hgweb proxy
 
