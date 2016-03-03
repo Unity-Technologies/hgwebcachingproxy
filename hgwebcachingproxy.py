@@ -83,7 +83,7 @@ except ImportError:
 
 cmdtable = {}
 command = cmdutil.command(cmdtable)
-testedwith = '2.8 3.2'
+testedwith = '3.4 3.5 3.6 3.7'
 buglink = 'https://bitbucket.org/Unity-Technologies/hgwebcachingproxy/'
 
 # username,passwd,path mapping to peer
