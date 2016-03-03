@@ -52,6 +52,11 @@ repository will be forwarded to the server for authentication and
 authorization. The server will not be aware of the actual requests that are
 served from the local cache and its logs will thus not be fully accurate.
 
+To serve an unauthenticated informational page when visiting the proxy with a
+web browser, set ``[hgwebcachingproxy] index`` to the path to the name of the
+file to serve. Files with ``.html`` extension is served as ``text/html``,
+otherwise it uses ``text/plain``.
+
 The URL of the server can also be configured as ``[hgwebcachingproxy]
 serverurl``, and the path to the cached repositories can be configured in
 ``[hgwebcachingproxy] cachepath``.
@@ -97,7 +102,8 @@ def pull(repo, remote):
         return exchange.pull(repo, remote).cgresult
 
 class proxyserver(object):
-    def __init__(self, ui, serverurl, cachepath, anonymous, unc=True):
+    def __init__(self, ui, serverurl, cachepath, anonymous, unc=True,
+                 index=None):
         self.ui = ui or uimod.ui()
         self.ui.setconfig('server', 'preferuncompressed', str(bool(unc))),
         self.serverurl = (serverurl or
@@ -123,6 +129,8 @@ class proxyserver(object):
                              self.ui.config('hgwebcachingproxy', 'realm',
                                             'Mercurial Proxy Authentication'))]
         self.clone = self.ui.configbool('hgwebcachingproxy', 'clone', True)
+        self.index = (index or
+                      self.ui.config('hgwebcachingproxy', 'index'))
 
     def __call__(self, env, respond):
         req = request.wsgirequest(env, respond)
@@ -150,6 +158,11 @@ class proxyserver(object):
                        for k, v in sorted(args.items()))))
 
         if not cmd:
+            if self.index:
+                req.respond(common.HTTP_OK,
+                            'text/html' if self.index.endswith('.html') else
+                            'text/plain')
+                return file(self.index)
             self.ui.warn(_('no command in request\n'))
             req.respond(common.HTTP_BAD_REQUEST, protocol.HGTYPE)
             return []
@@ -317,7 +330,9 @@ class proxyserver(object):
     ('', 'pid-file', '', _('name of file to write process ID to'), _('FILE')),
     ('6', 'ipv6', None, _('use IPv6 in addition to IPv4')),
     ('', 'certificate', '', _('SSL certificate file'), _('FILE')),
-    ('', 'anonymous', None, _("authentication is not mandatory"))],
+    ('', 'anonymous', None, _("authentication is not mandatory")),
+    ('', 'index', '', _("file to serve unauthenticated to web browsers"),
+     _('FILE'))],
     _('[OPTIONS]... SERVERURL CACHEPATH'),
     norepo=True)
 def proxy(ui, serverurl, cachepath, **opts):
@@ -348,9 +363,12 @@ def proxy(ui, serverurl, cachepath, **opts):
         if val not in (None, ''):
             ui.setconfig("web", o, val)
 
-    app = proxyserver(ui, serverurl, cachepath, opts.get('anonymous'))
+    app = proxyserver(ui, serverurl, cachepath, opts.get('anonymous'),
+                      index=opts.get('index'))
     service = httpservice(ui, app, opts)
     cmdutil.service(opts, initfn=service.init, runfn=service.run)
 
-def wsgi(ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True):
-    return proxyserver(ui, serverurl, cachepath, anonymous, unc=unc)
+def wsgi(ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True,
+         index=None):
+    return proxyserver(ui, serverurl, cachepath, anonymous, unc=unc,
+                       index=index)

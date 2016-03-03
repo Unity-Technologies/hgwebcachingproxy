@@ -33,6 +33,9 @@ Test repo
 Allow caching of test repo - create empty repo in its place
 (configure custom usercache to test that largefiles really are transferred)
 
+  $ cat >> $TESTTMP/index.html << EOF
+  > Configure dynapath to use <code>pathsubst = https://hostname:$HGPORT2/</code> to use this proxy.
+  > EOF
   $ mkdir $TESTTMP/proxycache
   $ hg init $TESTTMP/proxycache # repo in root
   $ cat >> $TESTTMP/proxycache/.hg/hgrc <<EOF
@@ -41,6 +44,7 @@ Allow caching of test repo - create empty repo in its place
   > EOF
   $ hg proxy -p $HGPORT2 -d --pid-file=hg2.pid -A $TESTTMP/proxy.log \
   >   --anonymous http://localhost:$HGPORT/ $TESTTMP/proxycache \
+  >   --index="$TESTTMP/index.html" \
   >   --config largefiles.usercache=$TESTTMP/proxycache/largefiles -v
   listening at http://*:$HGPORT2/ (bound to *:$HGPORT2) (glob)
 
@@ -240,6 +244,19 @@ Invalid URL
   $ showlog
   proxy:
    "GET /..?cmd=capabilities HTTP/1.1" 400 -
+  server:
+
+Browse index page
+
+  >>> import urllib2
+  >>> req = urllib2.urlopen('http://localhost:$HGPORT2/')
+  >>> print repr(req.headers['content-type'])
+  'text/html'
+  >>> print repr(req.read())
+  'Configure dynapath to use <code>pathsubst = https://hostname:$HGPORT2/</code> to use this proxy.\n'
+  $ showlog
+  proxy:
+   "GET / HTTP/1.1" 200 -
   server:
 
 Lookups
