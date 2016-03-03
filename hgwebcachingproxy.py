@@ -75,6 +75,11 @@ from mercurial import ui as uimod
 from mercurial.hgweb import protocol, common, request
 from mercurial.i18n import _
 from hgext.largefiles import lfutil, basestore
+try:
+    from mercurial.hgweb import httpservice
+    httpservice.__name__ # trigger demandimport
+except ImportError:
+    from mercurial.commands import httpservice
 
 cmdtable = {}
 command = cmdutil.command(cmdtable)
@@ -343,7 +348,7 @@ def proxy(ui, serverurl, cachepath, **opts):
             ui.setconfig("web", o, val)
 
     app = proxyserver(ui, serverurl, cachepath, opts.get('anonymous'))
-    service = commands.httpservice(ui, app, opts)
+    service = httpservice(ui, app, opts)
     cmdutil.service(opts, initfn=service.init, runfn=service.run)
 
 def wsgi(ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True):

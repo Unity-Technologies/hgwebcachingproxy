@@ -1,7 +1,7 @@
 To run this test:
 ~/hg/tests/run-tests.py -li test-hgwebcachingproxy.t
 
-'serve' is a requirement bug hghave is not available in $TESTDIR ...
+'serve' is a requirement but hghave is not available in $TESTDIR ...
 # $ "$TESTDIR/hghave" serve || exit 80
 
   $ cat >> $HGRCPATH <<EOF
