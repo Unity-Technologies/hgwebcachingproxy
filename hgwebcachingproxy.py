@@ -61,11 +61,30 @@ The URL of the server can also be configured as ``[hgwebcachingproxy]
 serverurl``, and the path to the cached repositories can be configured in
 ``[hgwebcachingproxy] cachepath``.
 
-For usage as WSGI application create a proxy.wsgi with configuration::
+For usage as WSGI application create a proxy.wsgi file with some boilerplate
+and configuration::
 
-    import sys; sys.path.insert(0, '/path/to/hg/')
-    from hgext.hgwebcachingproxy import wsgi
-    application = wsgi(serverurl='https://.../', cachepath='/path/to/repos/')
+    import sys
+    sys.path.insert(0, '/path/to/hg/')
+    sys.path.insert(0, '/path/to/hgwebcachingproxy/')
+    import hgwebcachingproxy
+    application = hgwebcachingproxy.proxyserver(serverurl='https://.../',
+                                                cachepath='/path/to/repos/')
+
+Or put the configuration in a config file, for example as::
+
+    import sys
+    sys.path.insert(0, '/path/to/hg/')
+    sys.path.insert(0, '/path/to/hgwebcachingproxy/')
+    import hgwebcachingproxy
+    application = hgwebcachingproxy.proxyserver(conf='/path/to/hgrc')
+
+where ``/path/to/hgrc`` contains::
+
+  [hgwebcachingproxy]
+  serverurl = https://.../
+  cachepath = /path/to/repos/
+  index = /path/to/index.html
 
 In an apache mod_wsgi configuration this proxy.wsgi can be used like::
 
@@ -102,9 +121,11 @@ def pull(repo, remote):
         return exchange.pull(repo, remote).cgresult
 
 class proxyserver(object):
-    def __init__(self, ui, serverurl, cachepath, anonymous, unc=True,
-                 index=None):
+    def __init__(self, ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True,
+                 index=None, conf=None):
         self.ui = ui or uimod.ui()
+        if conf:
+            self.ui.readconfig(conf, trust=True)
         self.ui.setconfig('server', 'preferuncompressed', str(bool(unc))),
         self.serverurl = (serverurl or
                           self.ui.config('hgwebcachingproxy', 'serverurl'))
@@ -367,8 +388,3 @@ def proxy(ui, serverurl, cachepath, **opts):
                       index=opts.get('index'))
     service = httpservice(ui, app, opts)
     cmdutil.service(opts, initfn=service.init, runfn=service.run)
-
-def wsgi(ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True,
-         index=None):
-    return proxyserver(ui, serverurl, cachepath, anonymous, unc=unc,
-                       index=index)
