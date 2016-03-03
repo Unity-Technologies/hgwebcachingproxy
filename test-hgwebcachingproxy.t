@@ -130,7 +130,6 @@ Pull all
   proxy:
    "GET /?cmd=capabilities HTTP/1.1" 200 -
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3D7a99bc7d64297385042c2683666eca3b4bcdbc8b
    "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:common=7a99bc7d64297385042c2683666eca3b4bcdbc8b&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
@@ -262,7 +261,6 @@ Lookups
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=namespaces
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=capabilities HTTP/1.1" 200 -
-   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
