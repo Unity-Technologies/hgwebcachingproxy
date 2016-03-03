@@ -106,13 +106,13 @@ class proxyserver(object):
         self.anonymous = anonymous
 
         if not self.serverurl:
-            raise util.Abort(_('no server url'))
+            raise error.Abort(_('no server url'))
         u = util.url(self.serverurl)
         if u.scheme not in ['http', 'https']:
-            raise util.Abort(_('invalid scheme in server url %s') % serverurl)
+            raise error.Abort(_('invalid scheme in server url %s') % serverurl)
 
         if not self.cachepath or not os.path.isdir(self.cachepath):
-            raise util.Abort(_('cache path %s is not a directory') %
+            raise error.Abort(_('cache path %s is not a directory') %
                              self.cachepath)
         self.ttl = self.ui.configint('hgwebcachingproxy', 'ttl', 30)
         self.authheaders = [('WWW-Authenticate',
@@ -282,7 +282,7 @@ class proxyserver(object):
             self.ui.warn(_('HTTPError connecting to server: %s\n') % inst)
             req.respond(inst.code, protocol.HGTYPE)
             return ['HTTP error']
-        except util.Abort, e: # hg.peer will abort when it gets 401
+        except error.Abort, e: # hg.peer will abort when it gets 401
             if e.args not in [('http authorization required',),
                               ('authorization failed',)]:
                 raise
