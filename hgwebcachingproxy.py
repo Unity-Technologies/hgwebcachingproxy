@@ -129,17 +129,9 @@ class proxyserver(object):
         return self.run_wsgi(req)
 
     def run_wsgi(self, req):
-        proto = protocol.webproto(req, self.ui)
+        path = req.env['PATH_INFO'].replace('\\', '/').strip('/')
 
         u = util.url(self.serverurl)
-
-        # Simple path validation - probably only sufficient on Linux
-        path = req.env['PATH_INFO'].replace('\\', '/').strip('/')
-        if ':' in path or path.startswith('.') or '/.' in path:
-            self.ui.warn(_('bad request path %r\n') % path)
-            req.respond(common.HTTP_BAD_REQUEST, protocol.HGTYPE)
-            return []
-
         # Forward HTTP basic authorization headers through the layers
         authheader = req.env.get('HTTP_AUTHORIZATION')
         if authheader and authheader.lower().startswith('basic '):
@@ -147,18 +139,12 @@ class proxyserver(object):
             if ':' in userpasswd:
                 u.user, u.passwd = userpasswd.split(':', 1)
 
-        # Bounce early on missing credentials
-        if not (self.anonymous or u.user and u.passwd):
-            er = common.ErrorResponse(common.HTTP_UNAUTHORIZED,
-                                      'Authentication is mandatory',
-                                      self.authheaders)
-            req.respond(er, protocol.HGTYPE)
-            return ['HTTP authentication required']
-
+        proto = protocol.webproto(req, self.ui)
         # MIME and HTTP allows multiple headers by the same name - we only
         # use and care about one
         args = dict((k, v[0]) for k, v in proto._args().items())
         cmd = args.pop('cmd', None)
+
         self.ui.write("%s@%s  cmd: %s  args: %s\n" %
                       (u.user, path or '/', cmd, ' '.join('%s=%s' % (k, v)
                        for k, v in sorted(args.items()))))
@@ -167,6 +153,20 @@ class proxyserver(object):
             self.ui.warn(_('no command in request\n'))
             req.respond(common.HTTP_BAD_REQUEST, protocol.HGTYPE)
             return []
+
+        # Simple path validation - probably only sufficient on Linux
+        if ':' in path or path.startswith('.') or '/.' in path:
+            self.ui.warn(_('bad request path %r\n') % path)
+            req.respond(common.HTTP_BAD_REQUEST, protocol.HGTYPE)
+            return []
+
+        # Bounce early on missing credentials
+        if not (self.anonymous or u.user and u.passwd):
+            er = common.ErrorResponse(common.HTTP_UNAUTHORIZED,
+                                      'Authentication is mandatory',
+                                      self.authheaders)
+            req.respond(er, protocol.HGTYPE)
+            return ['HTTP authentication required']
 
         u.path = posixpath.join(u.path or '', req.env['PATH_INFO']).strip('/')
         url = str(u)
