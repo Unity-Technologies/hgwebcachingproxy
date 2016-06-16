@@ -332,6 +332,11 @@ class proxyserver(object):
                 self.authheaders)
             req.respond(er, protocol.HGTYPE)
             return ['HTTP authentication required']
+        except Exception as e:
+            msg = 'Internal proxy server error - please contact the administrator: %s' % e
+            self.ui.warn('%s\n' % msg) # TODO: log traceback?
+            req.respond(common.ErrorResponse(common.HTTP_SERVER_ERROR, msg), 'text/plain')
+            return [msg]
 
 
 @command('^proxy',
