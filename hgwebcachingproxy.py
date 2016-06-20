@@ -115,10 +115,15 @@ peercache = dict()
 
 def pull(repo, remote):
     """41421bd9c42e dropped localrepo.pull"""
+    lock = repo.lock()
     try:
-        return repo.pull(remote)
-    except AttributeError:
-        return exchange.pull(repo, remote).cgresult
+        repo.invalidate()
+        try:
+            return repo.pull(remote)
+        except AttributeError:
+            return exchange.pull(repo, remote).cgresult
+    finally:
+        lock.release()
 
 class proxyserver(object):
     def __init__(self, ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True,
