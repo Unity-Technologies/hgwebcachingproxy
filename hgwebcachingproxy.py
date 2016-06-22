@@ -115,15 +115,11 @@ peercache = dict()
 
 def pull(repo, remote):
     """41421bd9c42e dropped localrepo.pull"""
-    lock = repo.lock()
+    repo.invalidate()
     try:
-        repo.invalidate()
-        try:
-            return repo.pull(remote)
-        except AttributeError:
-            return exchange.pull(repo, remote).cgresult
-    finally:
-        lock.release()
+        return repo.pull(remote)
+    except AttributeError:
+        return exchange.pull(repo, remote).cgresult
 
 class proxyserver(object):
     def __init__(self, ui=None, serverurl=None, cachepath=None, anonymous=None, unc=True,
@@ -249,13 +245,14 @@ class proxyserver(object):
                 self.ui.note(_('%s@%s - pulling\n') % (u.user, path))
                 t0 = time.time()
                 peer = hg.peer(self.ui, {}, url)
-                try:
-                    r = pull(repo, peer)
-                except error.RepoError as e:
-                    self.ui.debug('got %s on pull - running recover\n' % (e,))
-                    repo.recover()
-                    # should also run hg.verify(repo) ... but too expensive
-                    r = pull(repo, peer)
+                with repo.lock():
+                    try:
+                        r = pull(repo, peer)
+                    except error.RepoError as e:
+                        self.ui.debug('got %s on pull - running recover\n' % (e,))
+                        repo.recover()
+                        # should also run hg.verify(repo) ... but too expensive
+                        r = pull(repo, peer)
                 self.ui.debug('pull got %r after %s\n' % (r, time.time() - t0))
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
             elif ts is None: # never authenticated
@@ -307,12 +304,13 @@ class proxyserver(object):
                 if not peer:
                     peer = hg.peer(self.ui, {}, url)
                 self.ui.note(_('calling %s remotely\n') % cmd)
-                r = peer._call(cmd, data=data, **args)
-                if cmd == 'unbundle':
-                    self.ui.debug('fetching pushed changes back\n')
-                    # we could perhaps just have pulled from data ... but it
-                    # could be tricky to make sure the repo stays in sync ...
-                    pull(repo, peer)
+                with repo.lock():
+                    r = peer._call(cmd, data=data, **args)
+                    if cmd == 'unbundle':
+                        self.ui.debug('fetching pushed changes back\n')
+                        # we could perhaps just have pulled from data ... but it
+                        # could be tricky to make sure the repo stays in sync ...
+                        pull(repo, peer)
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
                 req.respond(common.HTTP_OK, protocol.HGTYPE)
                 return [r]
