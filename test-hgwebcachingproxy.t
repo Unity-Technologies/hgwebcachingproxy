@@ -1,5 +1,5 @@
 To run this test:
-~/hg/tests/run-tests.py -li test-hgwebcachingproxy.t
+~/hg/tests/run-tests.py -l test-hgwebcachingproxy.t
 
 'serve' is a requirement but hghave is not available in $TESTDIR ...
 # $ "$TESTDIR/hghave" serve || exit 80
@@ -244,9 +244,9 @@ Browse index page
 
   >>> import urllib2
   >>> req = urllib2.urlopen('http://localhost:$HGPORT2/')
-  >>> print repr(req.headers['content-type'])
+  >>> req.headers['content-type']
   'text/html'
-  >>> print repr(req.read())
+  >>> req.read()
   'Configure dynapath to use <code>pathsubst = https://hostname:$HGPORT2/</code> to use this proxy.\n'
   $ showlog
   proxy:

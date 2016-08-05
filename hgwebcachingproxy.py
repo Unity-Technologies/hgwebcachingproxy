@@ -98,12 +98,17 @@ from mercurial import cmdutil, util, hg, error, exchange
 from mercurial import ui as uimod
 from mercurial.hgweb import protocol, common, request
 from mercurial.i18n import _
-from hgext.largefiles import lfutil, basestore
+from hgext.largefiles import lfutil
 try:
     from mercurial.hgweb import httpservice
     httpservice.__name__ # trigger demandimport
 except ImportError:
     from mercurial.commands import httpservice
+try:
+    from hgext.largefiles.storefactory import openstore
+    openstore.__name__
+except ImportError:
+    from hgext.largefiles.basestore import _openstore as openstore
 
 cmdtable = {}
 command = cmdutil.command(cmdtable)
@@ -278,7 +283,7 @@ class proxyserver(object):
                               (u.user, path, ' '.join(missingshas)))
                 if not peer:
                     peer = hg.peer(self.ui, {}, url)
-                store = basestore._openstore(repo, peer, False)
+                store = openstore(repo, peer, False)
                 existsremotely = store.exists(missingshas)
                 for sha, available in sorted(existsremotely.iteritems()):
                     if not available:
