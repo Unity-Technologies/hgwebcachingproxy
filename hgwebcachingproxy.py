@@ -297,8 +297,10 @@ class proxyserver(object):
                                        ) % (sha, u.user, path))
                 peercache[(u.user, u.passwd, path)] = (peer, time.time())
 
-            # Forward write commands to the remote server
-            if cmd in ['putlfile', 'unbundle', 'pushkey', 'lookup']:
+            # Forward write commands to the remote server.
+            # Lookup and listkeys are also forwarded so we get
+            # local tags, bookmarks and phases from the server
+            if cmd in ['putlfile', 'unbundle', 'pushkey', 'lookup', 'listkeys']:
                 size = req.env.get('CONTENT_LENGTH')
                 self.ui.debug('reading %s bytes content before forwarding\n'
                               % size)

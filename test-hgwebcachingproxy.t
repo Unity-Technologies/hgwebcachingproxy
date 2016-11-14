@@ -19,6 +19,8 @@ Test repo
   $ cat >> .hg/hgrc <<EOF
   > [largefiles]
   > usercache=`pwd`/.hg/usercache
+  > [phases]
+  > publish = False
   > EOF
   $ echo f > f
   $ hg commit -qAm0
@@ -156,6 +158,8 @@ Push back
   remote: adding manifests
   remote: adding file changes
   remote: added 1 changesets with 1 changes to 1 files
+  $ hg log -r . -T '{phase}\n'
+  draft
   $ showlog
   proxy:
    "GET /?cmd=capabilities HTTP/1.1" 200 -
@@ -168,9 +172,13 @@ Push back
    "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3Da2d542ae417acd2cb7089ef7d6ea66d09d8f74e9
    "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Aerror%253Dabort%252Cunsupportedcontent%252Cpushraced%252Cpushkey%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&heads=524af1007f13d00d669f97853b771c2799d00964&listkeys=phases%2Cbookmarks
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   $ hg push
   pushing to http://localhost:$HGPORT2/
   searching for changes
@@ -207,11 +215,18 @@ Push largefile back
    "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
   server:
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=statlfile+sha%3D8ffbefa25ca257d3f5221c6b3a5dc6a9e8fe9f68
    "POST /?cmd=putlfile HTTP/1.1" 200 - x-hgarg-1:sha=8ffbefa25ca257d3f5221c6b3a5dc6a9e8fe9f68
    "POST /?cmd=unbundle HTTP/1.1" 200 - x-hgarg-1:heads=666f726365
    "GET /?cmd=batch HTTP/1.1" 200 - x-hgarg-1:cmds=lheads+%3Bknown+nodes%3D524af1007f13d00d669f97853b771c2799d00964
    "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Aerror%253Dabort%252Cunsupportedcontent%252Cpushraced%252Cpushkey%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=1&common=524af1007f13d00d669f97853b771c2799d00964&heads=b41fb2726e9e347f87905e11a4eb1a038a884c45&listkeys=phases%2Cbookmarks
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=phases
 
 Invalid URL
 
@@ -271,6 +286,8 @@ Lookups
    "GET /?cmd=getbundle HTTP/1.1" 200 - x-hgarg-1:bundlecaps=HG20%2Cbundle2%3DHG20%250Achangegroup%253D01%252C02%250Adigests%253Dmd5%252Csha1%252Csha512%250Aerror%253Dabort%252Cunsupportedcontent%252Cpushraced%252Cpushkey%250Ahgtagsfnodes%250Alistkeys%250Apushkey%250Aremote-changegroup%253Dhttp%252Chttps&cg=0&common=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&heads=a2d542ae417acd2cb7089ef7d6ea66d09d8f74e9&listkeys=phases%2Cbookmarks
   server:
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=this-is-a-local-tag
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=namespaces
+   "GET /?cmd=listkeys HTTP/1.1" 200 - x-hgarg-1:namespace=bookmarks
    "GET /?cmd=lookup HTTP/1.1" 200 - x-hgarg-1:key=a2d
 
 check error log
