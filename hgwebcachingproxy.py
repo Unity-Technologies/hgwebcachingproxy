@@ -111,7 +111,11 @@ except ImportError:
     from hgext.largefiles.basestore import _openstore as openstore
 
 cmdtable = {}
-command = cmdutil.command(cmdtable)
+try:
+    from mercurial import registrar
+    command = registrar.command(cmdtable)
+except (ImportError, AttributeError):
+    command = cmdutil.command(cmdtable)
 testedwith = '3.8'
 buglink = 'https://bitbucket.org/Unity-Technologies/hgwebcachingproxy/'
 
@@ -348,6 +352,11 @@ class proxyserver(object):
             req.respond(common.ErrorResponse(common.HTTP_SERVER_ERROR, msg), 'text/plain')
             return [msg]
 
+try:
+    from mercurial import server
+    service_fn = server.runservice
+except (ImportError, AttributeError):
+    service_fn = cmdutil.service
 
 @command('^proxy',
     [('A', 'accesslog', '', _('name of access log file to write to'),
@@ -400,4 +409,4 @@ def proxy(ui, serverurl, cachepath, **opts):
     app = proxyserver(ui, serverurl, cachepath, opts.get('anonymous'),
                       index=opts.get('index'))
     service = httpservice(ui, app, opts)
-    cmdutil.service(opts, initfn=service.init, runfn=service.run)
+    service_fn(opts, initfn=service.init, runfn=service.run)
