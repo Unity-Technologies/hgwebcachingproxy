@@ -249,7 +249,7 @@ class proxyserver(object):
                     return ['repository %s not available' % path]
                 repo = destpeer.local()
 
-            if cmd == 'capabilities' and not peer:
+            if cmd in ['capabilities', 'batch', 'lookup'] and not peer:
                 # new session on expired repo - do auth and pull again
                 self.ui.note(_('%s@%s - pulling\n') % (u.user, path))
                 t0 = time.time()
